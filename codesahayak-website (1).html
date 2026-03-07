@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CodeSahayak — कोड सहायक</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --saffron: #FF6B00;
+  --saffron-light: #FF9240;
+  --saffron-glow: #FF6B0033;
+  --green: #138808;
+  --green-light: #1DB810;
+  --navy: #080C1A;
+  --navy-mid: #0E1628;
+  --navy-card: #121C34;
+  --navy-border: #1E2D4A;
+  --white: #F0F4FF;
+  --muted: #6B7FA8;
+  --chakra: #1B4FD8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  width: 12px; height: 12px;
+  background: var(--saffron);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--saffron);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+  opacity: 0.5;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1; opacity: 0.4;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 18px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, #080C1Aee 0%, transparent 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #ffffff08;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
+}
+.nav-logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--saffron), #FF3D00);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px var(--saffron-glow);
+}
+.nav-logo-text { font-size: 20px; font-weight: 800; color: var(--white); }
+.nav-logo-text span { color: var(--saffron); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+.nav-links a:hover { color: var(--saffron); }
+.nav-cta {
+  padding: 10px 22px;
+  background: var(--saffron);
+  color: #000; font-weight: 800; font-size: 13px;
+  border: none; border-radius: 8px; cursor: none;
+  letter-spacing: 0.5px; transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--saffron-glow); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 120px 48px 80px;
+  position: relative; overflow: hidden;
+  text-align: center;
+}
+
+/* Mandala background */
+.mandala {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid #ffffff06;
+  animation: rotate-slow linear infinite;
+}
+.mandala-1 { width: 700px; height: 700px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 60s; }
+.mandala-2 { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-style: dashed; border-color: var(--saffron); opacity: 0.05; animation-duration: 40s; animation-direction: reverse; }
+.mandala-3 { width: 900px; height: 900px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: var(--chakra); opacity: 0.04; animation-duration: 80s; }
+@keyframes rotate-slow { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* Glow blobs */
+.blob {
+  position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
+}
+.blob-saffron { width: 400px; height: 400px; background: var(--saffron); opacity: 0.06; top: 10%; left: 60%; }
+.blob-green { width: 300px; height: 300px; background: var(--green); opacity: 0.05; top: 50%; left: 20%; }
+.blob-chakra { width: 350px; height: 350px; background: var(--chakra); opacity: 0.06; bottom: 10%; right: 15%; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #FF6B0015; border: 1px solid #FF6B0033;
+  padding: 6px 16px; border-radius: 100px;
+  font-size: 12px; font-weight: 700; color: var(--saffron);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 28px;
+  animation: fade-up 0.6s ease both;
+}
+.hero-eyebrow::before { content: '●'; animation: pulse-dot 2s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-title {
+  font-size: clamp(52px, 7vw, 96px);
+  font-weight: 800; line-height: 1.0;
+  margin-bottom: 8px;
+  animation: fade-up 0.7s ease 0.1s both;
+}
+.hero-title-devanagari {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: clamp(24px, 3.5vw, 48px);
+  color: var(--muted); font-weight: 600;
+  margin-bottom: 28px;
+  animation: fade-up 0.7s ease 0.15s both;
+}
+.hero-title .accent { color: var(--saffron); position: relative; }
+.hero-title .accent::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--saffron), transparent);
+  border-radius: 2px;
+}
+
+.hero-sub {
+  max-width: 580px; margin: 0 auto 40px;
+  font-size: 18px; line-height: 1.7; color: var(--muted);
+  font-family: 'Noto Sans Devanagari', 'Syne', sans-serif;
+  animation: fade-up 0.7s ease 0.2s both;
+}
+
+.hero-actions {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  animation: fade-up 0.7s ease 0.3s both;
+  margin-bottom: 64px;
+}
+.btn-primary {
+  padding: 15px 32px;
+  background: linear-gradient(135deg, var(--saffron), #FF3D00);
+  color: #000; font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 15px; letter-spacing: 0.3px;
+  border: none; border-radius: 10px; cursor: none;
+  box-shadow: 0 0 32px var(--saffron-glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px #FF6B0055; }
+.btn-ghost {
+  padding: 15px 32px;
+  background: transparent;
+  color: var(--white); font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 15px;
+  border: 1.5px solid var(--navy-border); border-radius: 10px; cursor: none;
+  transition: border-color 0.2s, color 0.2s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--saffron); color: var(--saffron); }
+
+/* Language pills hero */
+.lang-strip {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  animation: fade-up 0.7s ease 0.4s both;
+}
+.lang-pill {
+  padding: 8px 16px;
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 100px; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  transition: border-color 0.2s, transform 0.2s;
+  font-family: 'Noto Sans Devanagari', 'Syne', sans-serif;
+}
+.lang-pill:hover { border-color: var(--saffron); transform: translateY(-2px); }
+.lang-pill.active { border-color: var(--saffron); background: var(--saffron-glow); color: var(--saffron); }
+
+@keyframes fade-up { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  background: var(--navy-mid); border-top: 1px solid var(--navy-border); border-bottom: 1px solid var(--navy-border);
+  padding: 28px 48px;
+  display: flex; justify-content: center; gap: 64px; flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-num { font-size: 36px; font-weight: 800; color: var(--saffron); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ── SECTIONS ── */
+section { padding: 96px 48px; max-width: 1200px; margin: 0 auto; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--saffron); margin-bottom: 16px;
+}
+.section-title { font-size: clamp(32px, 4vw, 52px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+.section-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 520px; }
+
+/* ── HOW IT WORKS ── */
+#how { position: relative; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+.step {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  padding: 40px 36px; position: relative; overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.step:first-child { border-radius: 16px 0 0 16px; }
+.step:last-child { border-radius: 0 16px 16px 0; }
+.step:hover { border-color: var(--saffron); transform: translateY(-4px); z-index: 1; }
+.step::before {
+  content: attr(data-num);
+  position: absolute; top: -20px; right: 24px;
+  font-size: 120px; font-weight: 800; color: #ffffff04; line-height: 1;
+  pointer-events: none;
+}
+.step-icon { font-size: 36px; margin-bottom: 20px; }
+.step-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+.step-desc { color: var(--muted); font-size: 15px; line-height: 1.7; }
+.step-arrow {
+  position: absolute; top: 50%; right: -20px;
+  width: 40px; height: 2px; background: var(--navy-border); z-index: 2;
+  transform: translateY(-50%);
+}
+.step-arrow::after { content: '▶'; position: absolute; right: -8px; top: -7px; font-size: 14px; color: var(--navy-border); }
+
+/* ── FEATURES ── */
+#features { background: var(--navy-mid); max-width: 100%; padding: 96px 48px; }
+#features .inner { max-width: 1200px; margin: 0 auto; }
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 56px; }
+.feature-card {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 16px; padding: 36px;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative; overflow: hidden;
+}
+.feature-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--saffron-glow) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.feature-card:hover { border-color: var(--saffron); transform: translateY(-4px); }
+.feature-card:hover::after { opacity: 1; }
+.feature-card.wide { grid-column: 1 / -1; }
+.feat-icon { font-size: 32px; margin-bottom: 20px; }
+.feat-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.feat-desc { color: var(--muted); font-size: 15px; line-height: 1.7; }
+.feat-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.feat-tag {
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  background: #FF6B0015; color: var(--saffron); border: 1px solid #FF6B0033;
+  font-family: 'JetBrains Mono', monospace;
+}
+.feat-tag.blue { background: #1B4FD815; color: #6B9FFF; border-color: #1B4FD833; }
+.feat-tag.green { background: #13880815; color: #4DC94D; border-color: #13880833; }
+
+/* ── DEMO / AGENT ── */
+#demo { position: relative; }
+.demo-header { margin-bottom: 48px; }
+
+/* Agent UI */
+.agent-shell {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 32px 80px #00000066;
+}
+.agent-topbar {
+  background: var(--navy-mid); padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--navy-border);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #FF5F57; }
+.dot-y { background: #FFBD2E; }
+.dot-g { background: #28CA41; }
+.agent-topbar-title { font-size: 13px; color: var(--muted); margin-left: 8px; font-family: 'JetBrains Mono', monospace; }
+.agent-topbar-badge { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--green-light); font-weight: 700; }
+.agent-topbar-badge::before { content: '●'; animation: pulse-dot 2s infinite; }
+
+.agent-body { display: grid; grid-template-columns: 210px 1fr; min-height: 520px; }
+
+/* Sidebar */
+.agent-sidebar {
+  background: #0A1020; border-right: 1px solid var(--navy-border);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; padding: 0 8px; }
+.sidebar-lang {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: none;
+  transition: background 0.15s, color 0.15s;
+  border: 1px solid transparent;
+  font-family: 'Noto Sans Devanagari', 'Syne', sans-serif;
+}
+.sidebar-lang:hover { background: var(--navy-card); }
+.sidebar-lang.active { background: var(--saffron-glow); border-color: #FF6B0033; color: var(--saffron); }
+.sidebar-lang[data-lang$="-en"].active { background: #FF924015; border-color: #FF924044; color: #FF9240; }
+.sidebar-lang .flag { font-size: 18px; }
+
+.sidebar-divider { height: 1px; background: var(--navy-border); margin: 8px 0; }
+.sidebar-mode {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  font-size: 13px; cursor: none; color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-mode:hover { background: var(--navy-card); color: var(--white); }
+.sidebar-mode.active { color: var(--white); background: var(--navy-border); }
+.mode-icon { font-size: 16px; }
+
+/* Main agent area */
+.agent-main { display: flex; flex-direction: column; }
+.agent-tabs {
+  display: flex; border-bottom: 1px solid var(--navy-border);
+  padding: 0 20px;
+}
+.agent-tab {
+  padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: none;
+  border-bottom: 2px solid transparent; color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+.agent-tab.active { color: var(--saffron); border-color: var(--saffron); }
+.agent-tab:hover { color: var(--white); }
+
+.agent-content { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Code input */
+.code-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.code-editor {
+  background: #070C18; border: 1px solid var(--navy-border);
+  border-radius: 10px; padding: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: #A8C5F0; line-height: 1.7;
+  min-height: 140px; resize: vertical;
+  width: 100%; outline: none;
+  transition: border-color 0.2s;
+}
+.code-editor:focus { border-color: var(--saffron); }
+
+.agent-action-row { display: flex; align-items: center; gap: 12px; }
+.agent-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--saffron), #FF3D00);
+  color: #000; font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 13px;
+  border: none; border-radius: 8px; cursor: none;
+  display: flex; align-items: center; gap: 6px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.agent-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--saffron-glow); }
+.agent-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.prog-lang-select {
+  padding: 9px 14px; background: var(--navy-mid);
+  border: 1px solid var(--navy-border); border-radius: 8px;
+  color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  outline: none; cursor: none;
+}
+
+/* Result area */
+.agent-result {
+  background: #070C18; border: 1px solid var(--navy-border);
+  border-radius: 10px; padding: 20px;
+  min-height: 140px; font-size: 14px; line-height: 1.8;
+  color: #C8D8F0;
+  font-family: 'Noto Sans Devanagari', 'Syne', sans-serif;
+  position: relative; overflow: hidden;
+}
+.result-placeholder {
+  color: #2A3A5A; display: flex; align-items: center; justify-content: center;
+  height: 100px; font-size: 13px; font-family: 'JetBrains Mono', monospace;
+}
+.result-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--navy-border);
+}
+.result-badge {
+  padding: 3px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 700;
+  background: var(--saffron-glow); border: 1px solid #FF6B0033; color: var(--saffron);
+}
+.result-text { white-space: pre-wrap; }
+.result-loading { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--navy-border); border-top-color: var(--saffron); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Typing cursor */
+.typing-cursor { display: inline-block; width: 2px; height: 14px; background: var(--saffron); animation: blink 0.8s step-start infinite; vertical-align: middle; margin-left: 2px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── ARCHITECTURE ── */
+#architecture { }
+.arch-visual {
+  margin-top: 56px; background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 20px; padding: 48px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+  align-items: center; text-align: center;
+}
+.arch-node {
+  padding: 20px 12px;
+  position: relative;
+}
+.arch-node-icon { font-size: 28px; margin-bottom: 12px; }
+.arch-node-name { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.arch-node-sub { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.arch-node-badge {
+  margin: 8px auto 0; display: inline-block;
+  padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700;
+  background: var(--saffron-glow); color: var(--saffron); border: 1px solid #FF6B0033;
+}
+.arch-node-badge.green { background: #13880815; color: #4DC94D; border-color: #13880833; }
+.arch-node-badge.blue { background: #1B4FD815; color: #6B9FFF; border-color: #1B4FD833; }
+.arch-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--navy-border); font-size: 20px;
+}
+
+/* ── TESTIMONIALS / QUOTE ── */
+#stories { background: var(--navy-mid); max-width: 100%; padding: 96px 48px; }
+#stories .inner { max-width: 1200px; margin: 0 auto; }
+.quotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; }
+.quote-card {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 16px; padding: 32px;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.quote-card:hover { border-color: var(--saffron); transform: translateY(-4px); }
+.quote-text { font-size: 15px; line-height: 1.8; color: #A0B4D0; margin-bottom: 20px; font-style: italic; }
+.quote-text em { color: var(--saffron); font-style: normal; font-weight: 700; }
+.quote-author { display: flex; align-items: center; gap: 12px; }
+.quote-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.quote-name { font-size: 13px; font-weight: 700; }
+.quote-meta { font-size: 11px; color: var(--muted); }
+
+/* ── CTA SECTION ── */
+#cta-section {
+  text-align: center; padding: 96px 48px;
+  position: relative; overflow: hidden;
+}
+.cta-glow {
+  position: absolute; width: 600px; height: 300px;
+  background: radial-gradient(ellipse, var(--saffron) 0%, transparent 70%);
+  opacity: 0.05; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.cta-title { font-size: clamp(36px, 5vw, 68px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+.cta-sub { font-size: 18px; color: var(--muted); margin-bottom: 40px; }
+
+/* ── FOOTER ── */
+footer {
+  background: #060910; border-top: 1px solid var(--navy-border);
+  padding: 48px; text-align: center;
+}
+.footer-logo { font-size: 24px; font-weight: 800; color: var(--saffron); margin-bottom: 8px; }
+.footer-devanagari { font-family: 'Noto Sans Devanagari'; font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+.footer-links { display: flex; gap: 32px; justify-content: center; margin-bottom: 32px; flex-wrap: wrap; }
+.footer-links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+.footer-links a:hover { color: var(--saffron); }
+.footer-bottom { font-size: 12px; color: #2A3A5A; }
+.footer-flag { font-size: 20px; vertical-align: middle; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section { padding: 64px 24px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .step:first-child { border-radius: 16px 16px 0 0; }
+  .step:last-child { border-radius: 0 0 16px 16px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card.wide { grid-column: 1; }
+  .agent-body { grid-template-columns: 1fr; }
+  .agent-sidebar { display: none; }
+  .arch-visual { grid-template-columns: 1fr; gap: 16px; }
+  .arch-arrow { transform: rotate(90deg); }
+  .quotes-grid { grid-template-columns: 1fr; }
+  .stats-strip { gap: 32px; padding: 24px; }
+  #features, #stories { padding: 64px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🧑‍💻</div>
+    <div class="nav-logo-text">Code<span>Sahayak</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#demo">Try It</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+  </ul>
+  <a href="#demo" class="nav-cta">Try the Agent →</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="mandala mandala-1"></div>
+  <div class="mandala mandala-2"></div>
+  <div class="mandala mandala-3"></div>
+  <div class="blob blob-saffron"></div>
+  <div class="blob blob-green"></div>
+  <div class="blob blob-chakra"></div>
+
+  <div class="hero-eyebrow">🏆 Amazon Bharat Hackathon 2025</div>
+  <h1 class="hero-title">Learn to Code in<br/><span class="accent">Your Language</span></h1>
+  <div class="hero-title-devanagari">अपनी भाषा में कोड सीखें</div>
+  <p class="hero-sub">
+    An AI-powered coding assistant that explains code, translates errors, and teaches programming concepts in Hindi, Tamil, Telugu, Kannada & Malayalam — with culturally relevant analogies from Indian daily life.
+  </p>
+  <div class="hero-actions">
+    <a href="#demo" class="btn-primary">✨ Try CodeSahayak Free</a>
+    <a href="#how" class="btn-ghost">📖 How It Works</a>
+  </div>
+  <div class="lang-strip">
+    <div class="lang-pill active"><span class="flag">🇮🇳</span> हिंदी</div>
+    <div class="lang-pill"><span class="flag">🇮🇳</span> தமிழ்</div>
+    <div class="lang-pill"><span class="flag">🇮🇳</span> తెలుగు</div>
+    <div class="lang-pill"><span class="flag">🇮🇳</span> ಕನ್ನಡ</div>
+    <div class="lang-pill"><span class="flag">🇮🇳</span> മലയാളം</div>
+    <div class="lang-pill"><span class="flag">🌐</span> English</div>
+    <div class="lang-pill" style="border-color:#FF920066;color:#FF9240;">✨ Hinglish</div>
+    <div class="lang-pill" style="border-color:#FF920066;color:#FF9240;">✨ Tenglish</div>
+    <div class="lang-pill" style="border-color:#FF920066;color:#FF9240;">✨ Tamilenglish</div>
+    <div class="lang-pill" style="border-color:#FF920066;color:#FF9240;">✨ Kannadenglish</div>
+    <div class="lang-pill" style="border-color:#FF920066;color:#FF9240;">✨ Malaylish</div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-num">11</div><div class="stat-label">Language Modes</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">Coding Languages</div></div>
+  <div class="stat"><div class="stat-num">&lt;2s</div><div class="stat-label">Response Time</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">AWS Native</div></div>
+  <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Cultural Analogies</div></div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+  <div class="section-eyebrow">How It Works</div>
+  <h2 class="section-title">Simple. Powerful.<br/>Built for Bharat.</h2>
+  <p class="section-sub">Three steps to turn confusing code and cryptic errors into crystal-clear explanations in your mother tongue.</p>
+
+  <div class="steps-grid">
+    <div class="step" data-num="01">
+      <div class="step-icon">🌐</div>
+      <div class="step-title">Choose Your Language</div>
+      <div class="step-desc">Select from Hindi, Tamil, Telugu, Kannada, Malayalam, or English. CodeSahayak remembers your preference across sessions.</div>
+      <div class="step-arrow"></div>
+    </div>
+    <div class="step" data-num="02">
+      <div class="step-icon">📋</div>
+      <div class="step-title">Paste Code or Error</div>
+      <div class="step-desc">Submit any Python, JavaScript, Java, or C++ code snippet — or paste a confusing error message. Auto-detection handles the rest.</div>
+      <div class="step-arrow"></div>
+    </div>
+    <div class="step" data-num="03">
+      <div class="step-icon">💡</div>
+      <div class="step-title">Get Native Explanations</div>
+      <div class="step-desc">Receive line-by-line breakdowns, error translations with fixes, and culturally relevant analogies — like comparing a loop to a dabbawala's route.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<div id="features">
+  <section class="inner" style="padding: 0; max-width:1200px; margin: 0 auto;">
+    <div style="padding: 96px 0 0;">
+      <div class="section-eyebrow">Features</div>
+      <h2 class="section-title">Everything a student needs.<br/>Nothing they don't.</h2>
+    </div>
+    <div class="features-grid" style="margin-top: 56px; padding-bottom: 96px;">
+      <div class="feature-card">
+        <div class="feat-icon">💻</div>
+        <div class="feat-title">Code Explanation</div>
+        <div class="feat-desc">Get line-by-line breakdowns of any code snippet in your chosen language. Understands structure, purpose, and intent — not just syntax.</div>
+        <div class="feat-tags">
+          <span class="feat-tag">Python</span>
+          <span class="feat-tag">JavaScript</span>
+          <span class="feat-tag">Java</span>
+          <span class="feat-tag">C++</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⚠️</div>
+        <div class="feat-title">Error Translation</div>
+        <div class="feat-desc">Turn cryptic NameErrors, TypeErrors, and SyntaxErrors into friendly explanations with step-by-step fix guides — in your native language.</div>
+        <div class="feat-tags">
+          <span class="feat-tag blue">Error Type ID</span>
+          <span class="feat-tag blue">Root Cause</span>
+          <span class="feat-tag blue">Fix Suggestions</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🌺</div>
+        <div class="feat-title">Cultural Analogies</div>
+        <div class="feat-desc">Abstract concepts explained through familiar Indian experiences — from dabbawala delivery for loops, to cricket scoring for arrays, to biryani layering for recursion.</div>
+        <div class="feat-tags">
+          <span class="feat-tag green">Culturally Aware</span>
+          <span class="feat-tag green">Language-Adapted</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">📚</div>
+        <div class="feat-title">Concept Learning</div>
+        <div class="feat-desc">Ask about any programming concept — functions, recursion, OOP, data structures — and get a structured explanation with definition, code example, and analogy.</div>
+        <div class="feat-tags">
+          <span class="feat-tag">Definition</span>
+          <span class="feat-tag">Code Example</span>
+          <span class="feat-tag">Analogy</span>
+        </div>
+      </div>
+      <div class="feature-card wide">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;">
+          <div>
+            <div class="feat-icon">🔄</div>
+            <div class="feat-title">Conversational Sessions</div>
+            <div class="feat-desc">Ask follow-up questions in natural language. CodeSahayak maintains context across your session, so you can dive deeper without repeating yourself. Powered by DynamoDB session storage on AWS.</div>
+            <div class="feat-tags" style="margin-top:16px;">
+              <span class="feat-tag green">Session Memory</span>
+              <span class="feat-tag green">Follow-up Q&A</span>
+              <span class="feat-tag blue">DynamoDB</span>
+            </div>
+          </div>
+          <div style="background:#070C18;border-radius:12px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--navy-border);">
+            <div style="color:#4DC94D;margin-bottom:8px;">// Session Context Active</div>
+            <div style="color:#6B9FFF;">user:</div><div style="color:#A8C5F0;margin-bottom:8px;padding-left:12px;">"What does the loop do?"</div>
+            <div style="color:#FF9240;">sahayak:</div><div style="color:#A8C5F0;margin-bottom:8px;padding-left:12px;font-family:'Noto Sans Devanagari',sans-serif;">"यह loop array के हर element को..."</div>
+            <div style="color:#6B9FFF;">user:</div><div style="color:#A8C5F0;padding-left:12px;">"ek aur example do"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── LIVE DEMO ── -->
+<section id="demo">
+  <div class="demo-header">
+    <div class="section-eyebrow">Live Demo</div>
+    <h2 class="section-title">Try CodeSahayak<br/>Right Now</h2>
+    <p class="section-sub" style="margin-top:16px;">Powered by Amazon Bedrock · Claude 3.5 Sonnet · AWS Lambda</p>
+  </div>
+
+  <div class="agent-shell">
+    <div class="agent-topbar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="agent-topbar-title">codesahayak — AWS Bedrock Agent</div>
+      <div class="agent-topbar-badge">LIVE · ap-south-1</div>
+    </div>
+    <div class="agent-body">
+      <!-- Sidebar -->
+      <div class="agent-sidebar">
+        <div class="sidebar-label">Pure Languages</div>
+        <div class="sidebar-lang" data-lang="hi" onclick="selectLang(this,'hi')">
+          <span class="flag">🇮🇳</span> हिंदी <small style="margin-left:auto;opacity:0.5;font-size:10px;">Hindi</small>
+        </div>
+        <div class="sidebar-lang" data-lang="ta" onclick="selectLang(this,'ta')">
+          <span class="flag">🇮🇳</span> தமிழ் <small style="margin-left:auto;opacity:0.5;font-size:10px;">Tamil</small>
+        </div>
+        <div class="sidebar-lang" data-lang="te" onclick="selectLang(this,'te')">
+          <span class="flag">🇮🇳</span> తెలుగు <small style="margin-left:auto;opacity:0.5;font-size:10px;">Telugu</small>
+        </div>
+        <div class="sidebar-lang" data-lang="kn" onclick="selectLang(this,'kn')">
+          <span class="flag">🇮🇳</span> ಕನ್ನಡ <small style="margin-left:auto;opacity:0.5;font-size:10px;">Kannada</small>
+        </div>
+        <div class="sidebar-lang" data-lang="ml" onclick="selectLang(this,'ml')">
+          <span class="flag">🇮🇳</span> മലയാളം <small style="margin-left:auto;opacity:0.5;font-size:10px;">Malayalam</small>
+        </div>
+        <div class="sidebar-lang" data-lang="en" onclick="selectLang(this,'en')">
+          <span class="flag">🌐</span> English
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label" style="color:#FF9240;">✨ Code-Mixed</div>
+        <div class="sidebar-lang active" data-lang="hi-en" onclick="selectLang(this,'hi-en')" style="font-size:12px;">
+          <span class="flag">🇮🇳</span> Hinglish <small style="margin-left:auto;opacity:0.5;font-size:10px;">hi+en</small>
+        </div>
+        <div class="sidebar-lang" data-lang="ta-en" onclick="selectLang(this,'ta-en')" style="font-size:12px;">
+          <span class="flag">🇮🇳</span> Tamilenglish <small style="margin-left:auto;opacity:0.5;font-size:10px;">ta+en</small>
+        </div>
+        <div class="sidebar-lang" data-lang="te-en" onclick="selectLang(this,'te-en')" style="font-size:12px;">
+          <span class="flag">🇮🇳</span> Tenglish <small style="margin-left:auto;opacity:0.5;font-size:10px;">te+en</small>
+        </div>
+        <div class="sidebar-lang" data-lang="kn-en" onclick="selectLang(this,'kn-en')" style="font-size:12px;">
+          <span class="flag">🇮🇳</span> Kannadenglish <small style="margin-left:auto;opacity:0.5;font-size:10px;">kn+en</small>
+        </div>
+        <div class="sidebar-lang" data-lang="ml-en" onclick="selectLang(this,'ml-en')" style="font-size:12px;">
+          <span class="flag">🇮🇳</span> Malaylish <small style="margin-left:auto;opacity:0.5;font-size:10px;">ml+en</small>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label">Mode</div>
+        <div class="sidebar-mode active" onclick="selectMode(this,'explain')"><span class="mode-icon">💻</span> Explain Code</div>
+        <div class="sidebar-mode" onclick="selectMode(this,'error')"><span class="mode-icon">⚠️</span> Translate Error</div>
+        <div class="sidebar-mode" onclick="selectMode(this,'concept')"><span class="mode-icon">📚</span> Learn Concept</div>
+      </div>
+
+      <!-- Main -->
+      <div class="agent-main">
+        <div class="agent-tabs">
+          <div class="agent-tab active" id="tab-explain" onclick="switchTab('explain')">💻 Explain Code</div>
+          <div class="agent-tab" id="tab-error" onclick="switchTab('error')">⚠️ Error Help</div>
+          <div class="agent-tab" id="tab-concept" onclick="switchTab('concept')">📚 Learn Concept</div>
+        </div>
+
+        <div class="agent-content">
+          <!-- Explain tab -->
+          <div id="panel-explain">
+            <div class="code-label">Your Code</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+              <select class="prog-lang-select" id="progLang">
+                <option value="auto">🔍 Auto Detect</option>
+                <option value="python" selected>Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+              </select>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="loadSample('python')">Python</button>
+                <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="loadSample('js')">JS</button>
+                <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="loadSample('java')">Java</button>
+              </div>
+            </div>
+            <textarea class="code-editor" id="codeInput" spellcheck="false">def greet(name):
+    message = "Namaste, " + name + "!"
+    return message
+
+for student in ["Ravi", "Priya", "Arjun"]:
+    print(greet(student))</textarea>
+          </div>
+
+          <!-- Error tab -->
+          <div id="panel-error" style="display:none;">
+            <div class="code-label">Error Message</div>
+            <textarea class="code-editor" id="errorInput" style="min-height:80px;" spellcheck="false">NameError: name 'stuudent' is not defined</textarea>
+            <div class="code-label" style="margin-top:12px;">Code Context (optional)</div>
+            <textarea class="code-editor" id="contextInput" style="min-height:80px;" spellcheck="false" placeholder="Paste the code where error occurred..."></textarea>
+          </div>
+
+          <!-- Concept tab -->
+          <div id="panel-concept" style="display:none;">
+            <div class="code-label">Programming Concept</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+              <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="setConcept('for loop')">for loop</button>
+              <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="setConcept('recursion')">recursion</button>
+              <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="setConcept('dictionary')">dictionary</button>
+              <button class="agent-btn" style="background:#1A2A45;color:#A8C5F0;box-shadow:none;font-size:11px;padding:8px 12px;" onclick="setConcept('class')">class</button>
+            </div>
+            <input id="conceptInput" value="for loop" style="width:100%;background:#070C18;border:1px solid var(--navy-border);border-radius:10px;padding:12px 16px;color:#A8C5F0;font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;" placeholder="Type any concept..."/>
+          </div>
+
+          <div class="agent-action-row">
+            <button class="agent-btn" id="runBtn" onclick="runAgent()">✨ Explain in <span id="btnLangLabel">Hinglish</span></button>
+            <span style="font-size:12px;color:var(--muted);" id="statusText">Ready · Amazon Bedrock</span>
+          </div>
+
+          <div>
+            <div class="code-label">Response</div>
+            <div class="agent-result" id="resultBox">
+              <div class="result-placeholder">// Your explanation will appear here...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARCHITECTURE ── -->
+<section id="architecture">
+  <div class="section-eyebrow">AWS Architecture</div>
+  <h2 class="section-title">100% AWS Native.<br/>Built for Scale.</h2>
+  <p class="section-sub">Serverless, low-latency, deployed in Mumbai region (ap-south-1) for Indian students.</p>
+
+  <div class="arch-visual">
+    <div class="arch-node">
+      <div class="arch-node-icon">🌐</div>
+      <div class="arch-node-name">React App</div>
+      <div class="arch-node-sub">Frontend</div>
+      <div class="arch-node-badge">AWS Amplify</div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-node">
+      <div class="arch-node-icon">🔌</div>
+      <div class="arch-node-name">API Gateway</div>
+      <div class="arch-node-sub">REST API</div>
+      <div class="arch-node-badge">ap-south-1</div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-node">
+      <div class="arch-node-icon">⚡</div>
+      <div class="arch-node-name">Lambda</div>
+      <div class="arch-node-sub">Python 3.12</div>
+      <div class="arch-node-badge blue">Serverless</div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-node">
+      <div class="arch-node-icon">🤖</div>
+      <div class="arch-node-name">Bedrock</div>
+      <div class="arch-node-sub">Claude 3.5 Sonnet</div>
+      <div class="arch-node-badge green">AI Engine</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:24px;font-size:13px;color:var(--muted);">
+    DynamoDB stores session context &amp; language preferences · IAM manages all permissions · CloudWatch monitors performance
+  </div>
+</section>
+
+<!-- ── STORIES ── -->
+<div id="stories">
+  <section class="inner" style="padding: 0; max-width:1200px; margin:0 auto;">
+    <div style="padding:96px 0 0;">
+      <div class="section-eyebrow">Student Stories</div>
+      <h2 class="section-title">Built for every student<br/>from Bharat.</h2>
+    </div>
+    <div class="quotes-grid" style="padding-bottom:96px;">
+      <div class="quote-card">
+        <div class="quote-text">"पहले मुझे <em>IndexError</em> देखकर डर लगता था। अब CodeSahayak मुझे हिंदी में समझाता है — जैसे एक दोस्त समझाए।"</div>
+        <div class="quote-author">
+          <div class="quote-avatar">👨‍🎓</div>
+          <div><div class="quote-name">Rahul Sharma</div><div class="quote-meta">B.Tech CSE, Lucknow</div></div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"Recursion concept <em>biryani layering</em> analogy-ல புரிஞ்சது! English-ல படிச்சு 2 மணி நேரம் போச்சு, Tamil-ல 10 minute."</div>
+        <div class="quote-author">
+          <div class="quote-avatar">👩‍💻</div>
+          <div><div class="quote-name">Kavitha Rajan</div><div class="quote-meta">Diploma IT, Chennai</div></div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"TypeError error message <em>Telugu లో</em> చదివినప్పుడు, immediately అర్థమైంది. This tool is a game changer for rural students."</div>
+        <div class="quote-author">
+          <div class="quote-avatar">🧑‍💻</div>
+          <div><div class="quote-name">Srinivas Reddy</div><div class="quote-meta">Self-taught, Vijayawada</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── CTA ── -->
+<section id="cta-section" style="max-width:100%;padding:96px 48px;">
+  <div class="cta-glow"></div>
+  <div class="section-eyebrow" style="justify-content:center;display:flex;">Get Started</div>
+  <h2 class="cta-title">Code belongs to<br/><span style="color:var(--saffron);">everyone.</span></h2>
+  <p class="cta-sub">In every language. For every student. Across every state.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+    <a href="#demo" class="btn-primary" style="font-size:16px;padding:16px 36px;">✨ Start Learning Free</a>
+    <a href="https://github.com" class="btn-ghost" style="font-size:16px;padding:16px 36px;">⭐ View on GitHub</a>
+  </div>
+  <div style="margin-top:40px;font-size:13px;color:var(--muted);">Powered by <span style="color:#FF9900;font-weight:700;">Amazon Bedrock</span> · Deployed on <span style="color:#FF9900;font-weight:700;">AWS ap-south-1</span> · Built for <span style="color:var(--saffron);font-weight:700;">Bharat 🇮🇳</span></div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">CodeSahayak</div>
+  <div class="footer-devanagari">कोड सहायक — हर छात्र के लिए</div>
+  <div class="footer-links">
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="#demo">Try It</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#">GitHub</a>
+    <a href="#">Documentation</a>
+  </div>
+  <div class="footer-bottom">
+    Amazon Bharat Hackathon 2025 · Built with ❤️ for India <span class="footer-flag">🇮🇳</span> · AWS Bedrock + Claude 3.5 Sonnet
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  }, 80);
+});
+document.querySelectorAll('a,button,.sidebar-lang,.sidebar-mode,.agent-tab,.lang-pill').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '20px'; cursor.style.height = '20px';
+    ring.style.width = '50px'; ring.style.height = '50px'; ring.style.opacity = '0.8';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '12px'; cursor.style.height = '12px';
+    ring.style.width = '36px'; ring.style.height = '36px'; ring.style.opacity = '0.5';
+  });
+});
+
+// ── AGENT STATE ──
+let currentLang = 'hi-en'; // Default to Hinglish
+let isMixedMode = true;    // Track if user wants Slang (-en) or Pure
+let currentTab = 'explain';
+const LANG_NAMES = {
+  'hi': 'Hindi',       'hi-en': 'Hinglish',
+  'te': 'Telugu',      'te-en': 'Tenglish',
+  'ta': 'Tamil',       'ta-en': 'Tamil-English',
+  'kn': 'Kannada',     'kn-en': 'Kannada-English',
+  'ml': 'Malayalam',   'ml-en': 'Malayalam-English',
+  'en': 'English'
+};
+const LANG_FULL = LANG_NAMES;
+
+function selectLang(el, langCode) {
+  // Update UI — works for both sidebar-lang and lang-pill elements
+  document.querySelectorAll('.sidebar-lang').forEach(e => e.classList.remove('active'));
+  if (el && el.classList.contains('sidebar-lang')) el.classList.add('active');
+
+  // Set the base language
+  currentLang = langCode;
+  isMixedMode = langCode.includes('-en');
+
+  // Update button label
+  document.getElementById('btnLangLabel').textContent = LANG_NAMES[langCode] || langCode;
+  console.log("Selected Language:", currentLang);
+}
+
+function selectMode(el, mode) {
+  document.querySelectorAll('.sidebar-mode').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  switchTab(mode);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['explain','error','concept'].forEach(t => {
+    document.getElementById('panel-'+t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+  });
+  document.getElementById('resultBox').innerHTML = '<div class="result-placeholder">// Your explanation will appear here...</div>';
+}
+
+function loadSample(lang) {
+  const samples = {
+    python: `def greet(name):\n    message = "Namaste, " + name + "!"\n    return message\n\nfor student in ["Ravi", "Priya", "Arjun"]:\n    print(greet(student))`,
+    js: `function calculateTotal(cart) {\n  let total = 0;\n  for (let item of cart) {\n    total += item.price * item.qty;\n  }\n  return total;\n}`,
+    java: `public class FibSeries {\n  public static int fib(int n) {\n    if (n <= 1) return n;\n    return fib(n-1) + fib(n-2);\n  }\n  public static void main(String[] args) {\n    System.out.println(fib(10));\n  }\n}`
+  };
+  document.getElementById('codeInput').value = samples[lang] || samples.python;
+  document.getElementById('progLang').value = lang === 'js' ? 'javascript' : lang;
+}
+
+function setConcept(c) { document.getElementById('conceptInput').value = c; }
+
+// 1. Your actual Live Lambda URL
+const API_BASE = "https://abqbrpkk3zqgk46g27pcmpd7ke0bdpko.lambda-url.us-east-1.on.aws/";
+
+async function runAgent() {
+  const btn = document.getElementById('runBtn');
+  const status = document.getElementById('statusText');
+  const box = document.getElementById('resultBox');
+
+  // Get input based on active tab
+  let userInput = "";
+  if (currentTab === 'explain') userInput = document.getElementById('codeInput').value.trim();
+  else if (currentTab === 'error') userInput = `ERROR: ${document.getElementById('errorInput').value}\nCONTEXT: ${document.getElementById('contextInput').value}`;
+  else userInput = `Explain concept: ${document.getElementById('conceptInput').value}`;
+
+  if (!userInput) {
+    alert("Bhai, write something first!");
+    return;
+  }
+
+  // UI State: Loading
+  btn.disabled = true;
+  btn.style.opacity = "0.5";
+  status.textContent = 'Bhaiya is thinking...';
+  box.innerHTML = '<div class="result-loading"><div class="spinner"></div> Connecting to Bedrock via Lambda...</div>';
+
+  try {
+    const response = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: userInput,
+        language: currentLang // Sends 'hi', 'hi-en', 'te', 'te-en', etc.
+      })
+    });
+
+    if (!response.ok) throw new Error("Lambda Error: " + response.status);
+    const data = await response.json();
+
+    renderResult(data.explanation || data.error, LANG_NAMES[currentLang]);
+    status.textContent = 'Done · Amazon Bedrock';
+  } catch (error) {
+    box.innerHTML = `<div style="color:#ff4d4d; padding:20px;">⚠️ <b>Connection Failed:</b> ${error.message}<br><br>Check if CORS is enabled in your Lambda URL settings!</div>`;
+    status.textContent = 'Error';
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = "1";
+  }
+}
+
+// Helper to keep the rendering consistent with your design
+function renderResult(text, langName) {
+  const box = document.getElementById('resultBox');
+  // We use innerText to preserve the AI's formatting and prevent HTML injection
+  box.innerHTML = `
+    <div class="result-header">
+      <span class="result-badge">🇮🇳 ${langName}</span>
+      <span style="font-size:11px;color:var(--muted);margin-left:auto;">Live AI Response</span>
+    </div>
+    <div class="result-text" style="white-space: pre-wrap; font-family: 'JetBrains Mono', monospace;">${text}</div>
+  `;
+}
+
+// ── SCROLL ANIMATIONS ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.style.animation = 'fade-up 0.6s ease both';
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.step,.feature-card,.quote-card,.arch-node').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
