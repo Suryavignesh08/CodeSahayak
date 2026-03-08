@@ -4,11 +4,10 @@
 CodeSahayak is an AI-powered learning assistant designed for the AWS AI for Bharat Hackathon. It helps Indian students learn coding by explaining technical concepts and errors in native languages (Hindi, Tamil, Telugu, etc.) using culturally relevant analogies.
 
 ## 🛠 Tech Stack
-- **AI/ML:** AWS Bedrock (Claude 3 / Llama 3)
+- **AI/ML:** AWS Bedrock (Amazon Nova Pro)
 - **Compute:** AWS Lambda (Serverless)
 - **API:** Amazon API Gateway
-- **Voice:** Amazon Polly (for vernacular audio explanations)
-- **Frontend:** React.js / VS Code Extension API
+- **Frontend:** Amazon Amplify
 
 ## 📂 Documentation
 The following technical documents were generated using **Kiro**:
